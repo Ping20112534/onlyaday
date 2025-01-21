@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onlyavalentineday</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #FF9A9E, #FAD0C4);
+            color: #fff;
+            text-align: center;
+            overflow: hidden;
+        }
+        header {
+            padding: 20px;
+        }
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            animation: fadeIn 2s ease-in-out;
+        }
+        p {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            animation: fadeIn 2s ease-in-out;
+        }
+        button {
+            background-color: #FF6F61;
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #FF4A45;
+        }
+        .hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        .heart {
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            position: absolute;
+            animation: floatUp 4s infinite;
+            transform: rotate(45deg);
+            clip-path: polygon(50% 0%, 100% 35%, 80% 100%, 50% 75%, 20% 100%, 0% 35%);
+        }
+        .floating-message {
+            position: absolute;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
+            pointer-events: none;
+            white-space: nowrap;
+            animation: fadeOut 30s forwards;
+        }
+        form {
+            display: flex;
+            flex-direction: column; /* จัดเรียงจากบนลงล่าง */
+            align-items: center; /* จัดให้อยู่ตรงกลาง */
+            margin-top: 20px;
+        }
+        textarea, input[type="text"], input[type="button"] {
+            width: 60%; /* ขนาดกว้าง 60% */
+            max-width: 300px; /* จำกัดความกว้างสูงสุด */
+            margin-bottom: 15px; /* ระยะห่างระหว่างองค์ประกอบ */
+        }
+        textarea {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            box-sizing: border-box;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            box-sizing: border-box;
+        }
+        input[type="button"] {
+            background-color: #FF6F61;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        input[type="button"]:hover {
+            background-color: #FF4A45;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(45deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(45deg);
+                opacity: 0;
+            }
+        }
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Love is too short to express</h1>
+        <p>ความรักยากจะอธิบาย</p>
+    </header>
+
+    <!-- ใส่ <form> ครอบส่วน textarea และ input -->
+    <form>
+        <textarea id="messageInput" placeholder="พิมพ์ข้อความของคุณที่นี่..." rows="4" style="resize: none;"></textarea>
+        <input type="text" id="nameInput" placeholder="ชื่อของคุณ...">
+        <input type="button" value="ส่งข้อความ" onclick="saveMessage()">
+    </form>
+
+    <div class="hearts"></div>
+
+    <script>
+        // สร้างหัวใจลอย
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 2 + 3 + 's';
+            document.querySelector('.hearts').appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 4000);
+        }
+
+        setInterval(createHeart, 300);
+
+        // ฟังก์ชันสำหรับบันทึกข้อความ
+        function saveMessage() {
+            const message = document.getElementById('messageInput').value.trim();
+            const name = document.getElementById('nameInput').value.trim();
+
+            if (!message || !name) {
+                alert('กรุณากรอกข้อความและชื่อให้ครบถ้วน!');
+                return;
+            }
+
+            fetch('http://localhost:3000/add-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, name }),
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        alert('ข้อความถูกส่งเรียบร้อยแล้ว!');
+                        document.getElementById('messageInput').value = '';
+                        document.getElementById('nameInput').value = '';
+                    } else {
+                        alert('เกิดข้อผิดพลาดในการส่งข้อความ');
+                    }
+                })
+                .catch(() => alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้'));
+        }
+    </script>
+</body>
+</html>

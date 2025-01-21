@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onlyavalentineday</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #FF9A9E, #FAD0C4);
+            color: #fff;
+            text-align: center;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+        }
+
+        p {
+            font-size: 1.5rem;
+            margin: 20px 0;
+        }
+
+        .hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .heart {
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            position: absolute;
+            animation: floatUp 4s infinite;
+            transform: rotate(45deg);
+            clip-path: polygon(50% 0%, 100% 35%, 80% 100%, 50% 75%, 20% 100%, 0% 35%);
+        }
+
+        .floating-message {
+            font-size: 1rem;
+            font-weight: normal;
+            color: rgba(255, 255, 255, 0.9);
+            pointer-events: none;
+            position: absolute;
+            animation: fadeInUp 5s ease-in-out forwards, fadeOut 15s forwards 10s;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            white-space: pre-wrap; /* รักษาการขึ้นบรรทัดใหม่ */
+            text-align: center;
+        }
+.floating-message p {
+    margin: 0;
+    font-size: 1.2rem; /* ปรับขนาดฟอนต์ข้อความ */
+}
+
+.floating-message h3 {
+    margin: 5px 0 0;
+    font-size: 0.5rem; /* ขนาดฟอนต์ของชื่อ */
+    color: rgba(255, 255, 255, 0.8); /* สีของชื่อ */
+}
+
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(45deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+        <h1>Love is too short to express</h1>
+        <p>ความรักยากจะอธิบาย</p>
+    </header>
+
+    <div class="message-container" id="content"></div>
+    <div class="hearts"></div>
+
+    <script>
+        // สร้างหัวใจลอย
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 2 + 3 + 's';
+            document.querySelector('.hearts').appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 4000);
+        }
+
+        // ฟังก์ชันแสดงข้อความแบบลอย
+        function createFloatingMessage(message, name) {
+            const floatingMessage = document.createElement('div');
+            floatingMessage.classList.add('floating-message');
+            floatingMessage.style.left = Math.random() * 80 + 'vw'; // ตำแหน่งแนวนอนแบบสุ่ม
+            floatingMessage.style.top = Math.random() * 80 + 'vh'; // ตำแหน่งแนวตั้งแบบสุ่ม
+            floatingMessage.innerHTML = `
+                <p>${message}</p>
+                <h3>- ${name}</h3>
+            `;
+            document.body.appendChild(floatingMessage);
+
+            // ลบข้อความหลังแสดงผล
+            setTimeout(() => {
+                floatingMessage.remove();
+            }, 30000); // ข้อความจะหายไปหลัง 15 วินาที
+        }
+
+        // ฟังข้อความใหม่จากเซิร์ฟเวอร์
+    const eventSource = new EventSource('http://localhost:3000/events');
+
+    eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        if (Array.isArray(data)) {
+            // แสดงข้อความเก่าที่มีอยู่
+            data.forEach(({ message, name }) => createFloatingMessage(message, name));
+        } else {
+            // แสดงข้อความใหม่
+            createFloatingMessage(data.message, data.name);
+        }
+    }
+
+        // สร้างหัวใจลอยทุกๆ 300ms
+        setInterval(createHeart, 300);
+    </script>
+</body>
+</html>
