@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+app.use(cors()); // Allow CORS from your specific domain
 app.use(bodyParser.json());
 
 let clients = [];
@@ -14,8 +14,12 @@ function sendToClients(message) {
     clients.forEach((client) => client.res.write(`data: ${JSON.stringify(message)}\n\n`));
 }
 
+app.get('/api/home', (req, res) => {
+    res.status(201).json({ message: 'hello' });
+})
+
 // Endpoint สำหรับ SSE
-app.get('/events', (req, res) => {
+app.get('/api/events', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
@@ -31,7 +35,7 @@ app.get('/events', (req, res) => {
 });
 
 // Endpoint สำหรับเพิ่มข้อความ
-app.post('/add-message', (req, res) => {
+app.post('/api/add-message', (req, res) => {
     const { message, name } = req.body;
 
     if (!message || !name) {
@@ -45,14 +49,13 @@ app.post('/add-message', (req, res) => {
     res.status(201).json({ success: true });
 });
 
-
-//Endpoint สำหรับดูข้อความ
-app.get('/messages', (req, res) => {
+// Endpoint สำหรับดูข้อความ
+app.get('/api/messages', (req, res) => {
     res.json(messages); // ส่งข้อความทั้งหมดกลับในรูปแบบ JSON
 });
 
-//Endpoint สำหรับลบข้อความ
-app.delete('/messages/:id', (req, res) => {
+// Endpoint สำหรับลบข้อความ
+app.delete('/api/messages/:id', (req, res) => {
     const messageId = parseInt(req.params.id, 10); // แปลง ID ที่ส่งมาเป็นตัวเลข
     const index = messages.findIndex(msg => msg.id === messageId);
 
@@ -65,5 +68,5 @@ app.delete('/messages/:id', (req, res) => {
 });
 
 // เริ่มเซิร์ฟเวอร์
-const PORT = 3000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+const PORT = process.env.PORT || 3000; // ใช้ port จาก environment variable
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
