@@ -8,6 +8,14 @@
       {
         "src": "index.html",
         "use": "@vercel/static"
+      },
+      {
+        "src": "display.html",
+        "use": "@vercel/static"
+      },
+      {
+        "src": "admin.html",
+        "use": "@vercel/static"
       }
     ],
     "routes": [
