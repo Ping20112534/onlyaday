@@ -192,6 +192,10 @@
             }
         }
 
+        eventSource.onerror = (error) => {
+            console.error('EventSource failed:', error);
+        };
+
         // สร้างหัวใจลอยทุกๆ 300ms
         setInterval(createHeart, 300);
     </script>

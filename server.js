@@ -33,6 +33,7 @@ app.get('/api/events', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Retry', '3000'); // Add retry every 3 seconds if connection is lost
 
     clients.push({ id: Date.now(), res });
 
