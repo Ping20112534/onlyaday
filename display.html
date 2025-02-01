@@ -117,6 +117,7 @@
 
     <script>
         const allMessages = [];
+        const waitingTime = 30000;
 
         // สร้างหัวใจลอย
         function createHeart() {
@@ -157,9 +158,9 @@
                     createFloatingMessage(message, name);
                     // Check if this is the last message, then restart the loop
                     if (index === lastAllMessagesLength - 1) {
-                        setTimeout(loopMessages, 5000); // Wait 5 seconds before starting next loop
+                        setTimeout(loopMessages, waitingTime); // Wait 5 seconds before starting next loop
                     }
-                }, index * 30000);
+                }, index * waitingTime);
             });
         }
 
@@ -184,7 +185,7 @@
 
                 // ถ้าเป็นข้อความแรกสุด ให้เริ่มต้นวนลูป
                 if (allMessages.length === 1) {
-                    setTimeout(loopMessages, 5000);
+                    setTimeout(loopMessages, waitingTime);
                 }
             }
         }
