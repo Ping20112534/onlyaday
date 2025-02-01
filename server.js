@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const fs = require('fs');
 
 const app = express();
 app.use(cors()); // Allow CORS from your specific domain
@@ -8,6 +9,15 @@ app.use(bodyParser.json());
 
 let clients = [];
 let messages = [];
+
+// Load messages from file
+try {
+    const data = fs.readFileSync('messages.json', 'utf8');
+    messages = JSON.parse(data);
+} catch (err) {
+    // If file doesn't exist, create it with empty array
+    fs.writeFileSync('messages.json', JSON.stringify([], null, 2));
+}
 
 // ส่งข้อความใหม่ให้ทุก client
 function sendToClients(message) {
@@ -44,6 +54,10 @@ app.post('/api/add-message', (req, res) => {
 
     const newMessage = { id: Date.now(), message, name };
     messages.push(newMessage);
+    
+    // Save to file
+    fs.writeFileSync('messages.json', JSON.stringify(messages, null, 2));
+    
     sendToClients(newMessage); // ส่งข้อความใหม่ให้ทุก client
 
     res.status(201).json({ success: true });
@@ -61,6 +75,10 @@ app.delete('/api/messages/:id', (req, res) => {
 
     if (index !== -1) {
         messages.splice(index, 1); // ลบข้อความออกจาก array
+        
+        // Save to file
+        fs.writeFileSync('messages.json', JSON.stringify(messages, null, 2));
+        
         res.status(200).send('ข้อความถูกลบแล้ว');
     } else {
         res.status(404).send('ไม่พบข้อความ');
