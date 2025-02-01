@@ -118,6 +118,7 @@
     <script>
         const allMessages = [];
         const waitingTime = 30000;
+        let running = false;
 
         // สร้างหัวใจลอย
         function createHeart() {
@@ -152,12 +153,16 @@
 
         // ฟังก์ชันวนลูปแสดงข้อความแบบลอย
         function loopMessages() {
+            if (running || allMessages.length === 0) return;
+            running = true;
+
             const lastAllMessagesLength = allMessages.length;
             allMessages.forEach(({ message, name }, index) => {
                 setTimeout(() => {
                     createFloatingMessage(message, name);
                     // Check if this is the last message, then restart the loop
                     if (index === lastAllMessagesLength - 1) {
+                        running = false;
                         setTimeout(loopMessages, waitingTime); // Wait 5 seconds before starting next loop
                     }
                 }, index * waitingTime);
@@ -186,7 +191,7 @@
                 createFloatingMessage(message, name);
 
                 // ถ้าเป็นข้อความแรกสุด ให้เริ่มต้นวนลูป
-                if (allMessages.length === 1) {
+                if (!running) {
                     setTimeout(loopMessages, waitingTime);
                 }
             }
