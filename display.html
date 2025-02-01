@@ -62,17 +62,17 @@
             white-space: pre-wrap; /* รักษาการขึ้นบรรทัดใหม่ */
             text-align: center;
         }
-.floating-message p {
-    margin: 0;
-    font-size: 1.2rem; /* ปรับขนาดฟอนต์ข้อความ */
-}
 
-.floating-message h3 {
-    margin: 5px 0 0;
-    font-size: 1rem; /* ขนาดฟอนต์ของชื่อ */
-    color: rgba(255, 255, 255, 0.8); /* สีของชื่อ */
-}
+        .floating-message p {
+            margin: 0;
+            font-size: 1.2rem; /* ปรับขนาดฟอนต์ข้อความ */
+        }
 
+        .floating-message h3 {
+            margin: 5px 0 0;
+            font-size: 1rem; /* ขนาดฟอนต์ของชื่อ */
+            color: rgba(255, 255, 255, 0.8); /* สีของชื่อ */
+        }
 
         @keyframes floatUp {
             0% {
@@ -107,7 +107,7 @@
     </style>
 </head>
 <body>
-<header>
+    <header>
         <h1>Love is too short to express</h1>
         <p>ความรักยากจะอธิบาย</p>
     </header>
@@ -116,6 +116,8 @@
     <div class="hearts"></div>
 
     <script>
+        const allMessages = [];
+
         // สร้างหัวใจลอย
         function createHeart() {
             const heart = document.createElement('div');
@@ -147,20 +149,38 @@
             }, 30000); // ข้อความจะหายไปหลัง 15 วินาที
         }
 
-        // ฟังข้อความใหม่จากเซิร์ฟเวอร์
-    const eventSource = new EventSource('/api/events');
-
-    eventSource.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-
-        if (Array.isArray(data)) {
-            // แสดงข้อความเก่าที่มีอยู่
-            data.forEach(({ message, name }) => createFloatingMessage(message, name));
-        } else {
-            // แสดงข้อความใหม่
-            createFloatingMessage(data.message, data.name);
+        // ฟังก์ชันวนลูปแสดงข้อความแบบลอย
+        function loopMessages() {
+            if (allMessages.length > 0) {
+                allMessages.forEach(({ message, name }, index) => {
+                    setTimeout(() => {
+                        createFloatingMessage(message, name);
+                    }, index * 3000); // ปรับค่าหน่วงเวลาเป็น 3000ms
+                });
+            }
         }
-    }
+
+        // ฟังข้อความใหม่จากเซิร์ฟเวอร์
+        const eventSource = new EventSource('/api/events');
+
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            if (Array.isArray(data)) {
+                // แสดงข้อความเก่าที่มีอยู่
+                data.forEach(({ message, name }) => {
+                    allMessages.push({ message, name });
+                    createFloatingMessage(message, name);
+                });
+
+                // เริ่มวนลูปแสดงข้อความ
+                setInterval(loopMessages, 30000); // ปรับช่วงเวลาให้เหมาะสม
+            } else {
+                // แสดงข้อความใหม่
+                allMessages.push({ message, name });
+                createFloatingMessage(data.message, data.name);
+            }
+        }
 
         // สร้างหัวใจลอยทุกๆ 300ms
         setInterval(createHeart, 300);
