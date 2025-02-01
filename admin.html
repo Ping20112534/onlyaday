@@ -50,7 +50,7 @@
 
     <script>
         // ดึงข้อความจากเซิร์ฟเวอร์
-        fetch('/api/messages')
+        fetch('https://onlyaday.fly.dev/api/messages')
             .then(response => response.json())
             .then(messages => {
                const tableBody = document.getElementById('messageTable').querySelector('tbody');
@@ -69,7 +69,7 @@ messages.forEach(msg => {
 
         // ฟังก์ชันลบข้อความ
         function deleteMessage(id) {
-            fetch(`/api/messages/${id}`, { method: 'DELETE' })
+            fetch(`https://onlyaday.fly.dev/api/messages/${id}`, { method: 'DELETE' })
                 .then(response => {
                     if (response.ok) {
                         alert('ข้อความถูกลบแล้ว');
