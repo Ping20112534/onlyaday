@@ -151,13 +151,11 @@
 
         // ฟังก์ชันวนลูปแสดงข้อความแบบลอย
         function loopMessages() {
-            if (allMessages.length > 0) {
-                allMessages.forEach(({ message, name }, index) => {
-                    setTimeout(() => {
-                        createFloatingMessage(message, name);
-                    }, index * 3000); // ปรับค่าหน่วงเวลาเป็น 3000ms
-                });
-            }
+            allMessages.forEach(({ message, name }, index) => {
+                setTimeout(() => {
+                    createFloatingMessage(message, name);
+                }, index * 3000); // ปรับค่าหน่วงเวลาเป็น 3000ms
+            });
         }
 
         // ฟังข้อความใหม่จากเซิร์ฟเวอร์
@@ -173,8 +171,10 @@
                     createFloatingMessage(message, name);
                 });
 
-                // เริ่มวนลูปแสดงข้อความ
-                setInterval(loopMessages, 30000); // ปรับช่วงเวลาให้เหมาะสม
+                // เริ่มวนลูปแสดงข้อความหลังจากแสดงข้อความทั้งหมด
+                setTimeout(() => {
+                    setInterval(loopMessages, 30000); // ปรับช่วงเวลาให้เหมาะสม
+                }, data.length * 3000); // หน่วงเวลาตามจำนวนข้อความทั้งหมด
             } else {
                 // แสดงข้อความใหม่
                 allMessages.push({ message, name });
