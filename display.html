@@ -165,7 +165,7 @@
         }
 
         // ฟังข้อความใหม่จากเซิร์ฟเวอร์
-        const eventSource = new EventSource('/api/events');
+        const eventSource = new EventSource('https://onlyaday.fly.dev/api/events');
 
         eventSource.onmessage = (event) => {
             const data = JSON.parse(event.data);
