@@ -170,6 +170,8 @@
         eventSource.onmessage = (event) => {
             const data = JSON.parse(event.data);
 
+            console.log('event data', data);
+
             if (Array.isArray(data)) {
                 // แสดงข้อความเก่าที่มีอยู่
                 data.forEach(({ message, name }) => {
