@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Ping20112534/onlyaday#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.48.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "express": "^4.21.2"

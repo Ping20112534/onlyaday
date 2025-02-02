@@ -1,23 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const fs = require('fs');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 app.use(cors()); // Allow CORS from your specific domain
 app.use(bodyParser.json());
 
-let clients = [];
-let messages = [];
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_ANON_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
 
-// Load messages from file
-try {
-    const data = fs.readFileSync('messages.json', 'utf8');
-    messages = JSON.parse(data);
-} catch (err) {
-    // If file doesn't exist, create it with empty array
-    fs.writeFileSync('messages.json', JSON.stringify([], null, 2));
-}
+let clients = [];
 
 // ส่งข้อความใหม่ให้ทุก client
 function sendToClients(message) {
@@ -33,12 +28,24 @@ app.get('/api/events', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    res.setHeader('Retry', '3000'); // Add retry every 3 seconds if connection is lost
+    res.flushHeaders(); // Ensure headers are sent before writing to the stream
 
     clients.push({ id: Date.now(), res });
 
-    // ส่งข้อความที่มีอยู่ทั้งหมดให้ client ใหม่
-    res.write(`data: ${JSON.stringify(messages)}\n\n`);
+    // Tell the client to retry after 3000ms (3 seconds) if the connection is lost
+    res.write(`retry: 3000\n\n`);
+
+    // Fetch existing messages from Supabase
+    supabase
+        .from('contents')
+        .select('*')
+        .then(({ data, error }) => {
+            if (error) {
+                console.error(error);
+            } else {
+                res.write(`data: ${JSON.stringify(data)}\n\n`);
+            }
+        });
 
     req.on('close', () => {
         clients = clients.filter((client) => client.res !== res);
@@ -54,36 +61,53 @@ app.post('/api/add-message', (req, res) => {
     }
 
     const newMessage = { id: Date.now(), message, name };
-    messages.push(newMessage);
-    
-    // Save to file
-    fs.writeFileSync('messages.json', JSON.stringify(messages, null, 2));
-    
-    sendToClients(newMessage); // ส่งข้อความใหม่ให้ทุก client
 
-    res.status(201).json({ success: true });
+    // Insert message into Supabase
+    supabase
+        .from('contents')
+        .insert([newMessage])
+        .then(({ data, error }) => {
+            if (error) {
+                console.error(error);
+            } else {
+                sendToClients(newMessage); // ส่งข้อความใหม่ให้ทุก client
+                res.status(201).json({ success: true });
+            }
+        });
 });
 
 // Endpoint สำหรับดูข้อความ
 app.get('/api/messages', (req, res) => {
-    res.json(messages); // ส่งข้อความทั้งหมดกลับในรูปแบบ JSON
+    // Fetch messages from Supabase
+    supabase
+        .from('contents')
+        .select('*')
+        .then(({ data, error }) => {
+            if (error) {
+                console.error(error);
+            } else {
+                console.log(data);
+                res.json(data); // ส่งข้อความทั้งหมดกลับในรูปแบบ JSON
+            }
+        });
 });
 
 // Endpoint สำหรับลบข้อความ
 app.delete('/api/messages/:id', (req, res) => {
     const messageId = parseInt(req.params.id, 10); // แปลง ID ที่ส่งมาเป็นตัวเลข
-    const index = messages.findIndex(msg => msg.id === messageId);
 
-    if (index !== -1) {
-        messages.splice(index, 1); // ลบข้อความออกจาก array
-        
-        // Save to file
-        fs.writeFileSync('messages.json', JSON.stringify(messages, null, 2));
-        
-        res.status(200).send('ข้อความถูกลบแล้ว');
-    } else {
-        res.status(404).send('ไม่พบข้อความ');
-    }
+    // Delete message from Supabase
+    supabase
+        .from('contents')
+        .delete()
+        .eq('id', messageId)
+        .then(({ data, error }) => {
+            if (error) {
+                console.error(error);
+            } else {
+                res.status(200).send('ข้อความถูกลบแล้ว');
+            }
+        });
 });
 
 // เริ่มเซิร์ฟเวอร์
