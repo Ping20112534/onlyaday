@@ -117,7 +117,8 @@
 
     <script>
         const allMessages = [];
-        const waitingTime = 5000;
+        const waitingTime = 7000;
+        const overlapTime = 3000;
         let running = false;
 
         // สร้างหัวใจลอย
@@ -148,7 +149,7 @@
             // ลบข้อความหลังแสดงผล
             setTimeout(() => {
                 floatingMessage.remove();
-            }, waitingTime + 2000); // ข้อความจะหายไปหลัง 30 วินาที
+            }, waitingTime + overlapTime); // ข้อความจะหายไปหลัง 30 วินาที
         }
 
         // ฟังก์ชันวนลูปแสดงข้อความแบบลอย
@@ -165,12 +166,13 @@
                         running = false;
                         setTimeout(loopMessages, waitingTime); // Wait 5 seconds before starting next loop
                     }
-                }, index * waitingTime);
+                    console.log((index * waitingTime) - overlapTime)
+                }, index * (waitingTime - overlapTime));
             });
         }
 
         // ฟังข้อความใหม่จากเซิร์ฟเวอร์
-        const eventSource = new EventSource('/api/events');
+        const eventSource = new EventSource('https://onlyaday.vercel.app/api/events');
 
         eventSource.onmessage = (event) => {
             const data = JSON.parse(event.data);
