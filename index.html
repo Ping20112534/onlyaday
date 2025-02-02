@@ -172,7 +172,7 @@
                 return;
             }
 
-            fetch('https://onlyaday.fly.dev/api/add-message', {
+            fetch('/api/add-message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message, name }),
