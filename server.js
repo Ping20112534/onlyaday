@@ -111,6 +111,27 @@ app.delete('/api/messages/:id', (req, res) => {
         });
 });
 
+// Endpoint สำหรับส่งข้อความเฉพาะ ID ให้ clients
+app.post('/api/messages/:id', (req, res) => {
+    const messageId = parseInt(req.params.id, 10);
+
+    // Fetch specific message from Supabase
+    supabase
+        .from('contents')
+        .select('*')
+        .eq('id', messageId)
+        .single()
+        .then(({ data, error }) => {
+            if (error) {
+                console.error(error);
+                res.status(404).json({ error: 'ไม่พบข้อความ' });
+            } else if (data) {
+                sendToClients(data); // ส่งข้อความให้ทุก client
+                res.status(200).json({ success: true });
+            }
+        });
+});
+
 // เริ่มเซิร์ฟเวอร์
 const PORT = process.env.PORT || 3000; // ใช้ port จาก environment variable
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
