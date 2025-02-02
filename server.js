@@ -1,12 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const app = express();
 app.use(cors()); // Allow CORS from your specific domain
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from public directory
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL
@@ -109,6 +111,40 @@ app.delete('/api/messages/:id', (req, res) => {
                 res.status(200).send('ข้อความถูกลบแล้ว');
             }
         });
+});
+
+// Endpoint สำหรับส่งข้อความเฉพาะ ID ให้ clients
+app.post('/api/messages/:id', (req, res) => {
+    const messageId = parseInt(req.params.id, 10);
+
+    // Fetch specific message from Supabase
+    supabase
+        .from('contents')
+        .select('*')
+        .eq('id', messageId)
+        .single()
+        .then(({ data, error }) => {
+            if (error) {
+                console.error(error);
+                res.status(404).json({ error: 'ไม่พบข้อความ' });
+            } else if (data) {
+                sendToClients(data); // ส่งข้อความให้ทุก client
+                res.status(200).json({ success: true });
+            }
+        });
+});
+
+// Serve HTML files
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/display', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'display.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 // เริ่มเซิร์ฟเวอร์

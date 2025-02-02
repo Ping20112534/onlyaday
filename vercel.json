@@ -6,30 +6,30 @@
       "use": "@vercel/node"
     },
     {
-      "src": "index.html",
+      "src": "public/index.html",
       "use": "@vercel/static"
     },
     {
-      "src": "display.html",
+      "src": "public/display.html",
       "use": "@vercel/static"
     },
     {
-      "src": "admin.html",
+      "src": "public/admin.html",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/",
-      "dest": "index.html"
+      "dest": "public/index.html"
     },
     {
       "src": "/admin",
-      "dest": "admin.html"
+      "dest": "public/admin.html"
     },
     {
       "src": "/display",
-      "dest": "display.html"
+      "dest": "public/display.html"
     },
     {
       "src": "/api/(.*)",
@@ -37,7 +37,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "index.html"
+      "dest": "public/index.html"
     }
   ]
 }
