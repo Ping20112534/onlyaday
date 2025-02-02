@@ -172,7 +172,7 @@
         }
 
         // ฟังข้อความใหม่จากเซิร์ฟเวอร์
-        const eventSource = new EventSource('https://onlyaday.vercel.app/api/events');
+        const eventSource = new EventSource('/api/events');
 
         eventSource.onmessage = (event) => {
             const data = JSON.parse(event.data);
