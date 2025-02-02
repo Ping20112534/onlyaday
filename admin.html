@@ -71,8 +71,7 @@
                         row.innerHTML = `
                 <td>${msg.message}</td>
                 <td>${msg.name}</td>
-                <td><button class="danger" onclick="deleteMessage(${msg.id})">ลบ</button>
-                    <button class="primary" onclick="showMessage(${msg.id})">แสดงทันที</button></td>
+                <td><button class="danger" onclick="deleteMessage(${msg.id})">ลบ</button></td>
             `;
                         tableBody.appendChild(row);
                     });
@@ -94,23 +93,6 @@
                     })
                     .catch((error) =>
                         console.error("เกิดข้อผิดพลาดในการลบข้อความ:", error)
-                    );
-            }
-
-            function showMessage(id) {
-                fetch(`/api/messages/${id}`, {
-                    method: "POST",
-                })
-                    .then((response) => {
-                        if (response.ok) {
-                            alert("ข้อความถูกแสดงทันทีเรียบร้อยแล้ว!");
-                            location.reload(); // โหลดหน้าซ้ำเพื่ออัปเดตตาราง
-                        } else {
-                            alert("มีปัญหาในการใช้คำสั่งนี้");
-                        }
-                    })
-                    .catch((error) =>
-                        console.error("เกิดข้อผิดพลาดในการแสดงข้อความ:", error)
                     );
             }
         </script>
