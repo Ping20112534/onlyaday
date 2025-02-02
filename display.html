@@ -117,7 +117,7 @@
 
     <script>
         const allMessages = [];
-        const waitingTime = 30000;
+        const waitingTime = 5000;
         let running = false;
 
         // สร้างหัวใจลอย
@@ -148,7 +148,7 @@
             // ลบข้อความหลังแสดงผล
             setTimeout(() => {
                 floatingMessage.remove();
-            }, waitingTime); // ข้อความจะหายไปหลัง 30 วินาที
+            }, waitingTime + 2000); // ข้อความจะหายไปหลัง 30 วินาที
         }
 
         // ฟังก์ชันวนลูปแสดงข้อความแบบลอย
