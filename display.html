@@ -120,6 +120,7 @@
         const waitingTime = 7000;
         const overlapTime = 3000;
         let running = false;
+        let lastAllMessagesLength = -1;
 
         // สร้างหัวใจลอย
         function createHeart() {
@@ -166,7 +167,6 @@
                         running = false;
                         setTimeout(loopMessages, waitingTime); // Wait 5 seconds before starting next loop
                     }
-                    console.log((index * waitingTime) - overlapTime)
                 }, index * (waitingTime - overlapTime));
             });
         }
@@ -180,6 +180,20 @@
             console.log('event data', data);
 
             if (Array.isArray(data)) {
+                // เพิ่มในกรณีที่ vercel server ดับ ให้นำข้อความที่ขาดหายระหว่างทางนำมาแสดงทันที
+                if (lastAllMessagesLength === -1) {
+                    lastAllMessagesLength = data.length
+                } else if (lastAllMessagesLength < data.length) {
+                    const lostMessages = data.slice(
+                    -(data.length - lastAllMessagesLength)
+                    )
+                    lastAllMessagesLength = data.length
+                    lostMessages.forEach(({ message, name }, index) => {
+                    setTimeout(() => {
+                        createFloatingMessage(message, name)
+                    }, index * (waitingTime - overlapTime))
+                    })
+                }
                 // แสดงข้อความเก่าที่มีอยู่
                 data.forEach(({ message, name }) => {
                     allMessages.push({ message, name });
